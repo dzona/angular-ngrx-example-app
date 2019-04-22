@@ -7,7 +7,7 @@ export interface ICryptocurrency {
     cmc_rank: number;
     slug: string;
     num_market_pairs: number;
-    rank?: number;
+    quote: any[];
     last_updated: string;
     date_added: string;
     market_cap?: number;
@@ -36,5 +36,6 @@ export class Cryptocurrency extends BaseModel implements ICryptocurrency {
     platform: string;
     cmc_rank: number;
     last_updated: string;
+    quote: any[];
 
 }
