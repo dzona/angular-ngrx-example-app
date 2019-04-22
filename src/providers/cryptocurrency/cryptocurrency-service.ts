@@ -3,7 +3,9 @@ import { Observable } from 'rxjs';
 
 import { Api } from '../api/api';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class CryptocurrencyService {
 
     constructor(public api: Api) { }

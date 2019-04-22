@@ -7,7 +7,9 @@ import environment from './../../environments/environment';
 /**
  * Api is a generic REST Api handler. Set your API url first.
  */
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class Api {
   url: string = `${environment.apiUrl}/v1`;
 
