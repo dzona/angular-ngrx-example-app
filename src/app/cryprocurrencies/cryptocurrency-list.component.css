@@ -6,21 +6,19 @@
 .cryptocurrency-table td.mat-cell:first-of-type, 
 .cryptocurrency-table td.mat-footer-cell:first-of-type, 
 .cryptocurrency-table th.mat-header-cell:first-of-type {
-    padding-left: initial;
+    padding-left: .75rem;
 }
 
 .cryptocurrency-table td.mat-cell, 
 .cryptocurrency-table td.mat-footer-cell, 
 .cryptocurrency-table th.mat-header-cell {
-    padding: 0.3 rem;
+    padding: .75rem;
     border-bottom-width: initial;
     border-bottom-style: initial;
 }
 
 .table-container {
     position: relative;
-    max-height: 400px;
-    overflow: auto;
 }
 
 .loading-shade {

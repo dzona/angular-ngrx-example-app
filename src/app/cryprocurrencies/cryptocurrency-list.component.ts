@@ -18,9 +18,11 @@ export class CryptocurrencyListComponent implements AfterViewInit {
 
   public cryptocurrencies: Cryptocurrency[] = [];
 
-  public displayedColumns: string[] = ['id', 'name', 'slug', 'date_added'];
+  public displayedColumns: string[] = ['id', 'name', 'symbol', 'price', 'percent_change_24h', 'date_added'];
   public resultsLength = 0;
+  public pageSize = 10;
   public isLoadingResults = true;
+  public currency = 'EUR';
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -37,7 +39,7 @@ export class CryptocurrencyListComponent implements AfterViewInit {
         switchMap(() => {
           this.isLoadingResults = true;
 
-          return this.cryptoService!.getAll('USD', this.paginator.pageIndex + 1, this.sort.active, this.sort.direction);
+          return this.cryptoService.getAll(this.currency, this.paginator.pageIndex + 1, this.sort.active, this.sort.direction, this.pageSize);
         }),
         map((response: ApiResponse) => {
           this.isLoadingResults = false;
@@ -47,13 +49,18 @@ export class CryptocurrencyListComponent implements AfterViewInit {
         }),
         catchError(() => {
           this.isLoadingResults = false;
-          this.resultsLength = this.dummyAllResponse.data.length;
+          this.resultsLength = 100;
 
-          return observableOf(this.dummyAllResponse.data.map(data => new Cryptocurrency(data)));
+          return observableOf(this.getPageOfDummyData(this.paginator.pageIndex).map(data => new Cryptocurrency(data)));
         })
-      ).subscribe((cryptocurrencies: Cryptocurrency[]) => {
+      )
+      .subscribe((cryptocurrencies: Cryptocurrency[]) => {
         return this.cryptocurrencies = cryptocurrencies
       });
+  }
+
+  private getPageOfDummyData(page: number) {
+    return this.dummyAllResponse.data.slice(page * this.pageSize, this.pageSize);
   }
 
   private dummyAllResponse: any = {
