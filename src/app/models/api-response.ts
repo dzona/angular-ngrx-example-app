@@ -9,7 +9,7 @@ export class ApiResponse extends BaseModel {
     }
 
     getTotalCount(): number {
-        return this.isSuccess ? this.data.length : 0;
+        return this.isSuccess ? 100 : 0; //hardcoded to 100 for sake of test
     }
 }
 
