@@ -10,16 +10,9 @@ export interface ICryptocurrency {
     quote: any[];
     last_updated: string;
     date_added: string;
-    market_cap?: number;
-    price?: number;
     circulating_supply: number;
     total_supply: number;
     max_supply: number;
-    volume_24h?: number;
-    percent_change_1h?: number;
-    percent_change_24h?: number;
-    percent_change_7d?: number;
-    
 }
 
 export class Cryptocurrency extends BaseModel implements ICryptocurrency {
@@ -37,5 +30,4 @@ export class Cryptocurrency extends BaseModel implements ICryptocurrency {
     cmc_rank: number;
     last_updated: string;
     quote: any[];
-
 }
