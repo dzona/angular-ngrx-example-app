@@ -1,3 +1,7 @@
+.cryptocurrency-table {
+    position: relative;
+}
+
 .cryptocurrency-table tr.mat-footer-row, 
 .cryptocurrency-table tr.mat-row {
     height: auto;
@@ -17,11 +21,7 @@
     border-bottom-style: initial;
 }
 
-.table-container {
-    position: relative;
-}
-
-.loading-shade {
+.cryptocurrency-table .loading-overlay {
     position: absolute;
     top: 0;
     left: 0;

@@ -1,8 +1,8 @@
 <h2 class="my-3">{{pageTitle}}</h2>
 
 <div *ngIf="cryptocurrencies" class="cryptocurrency-table">
-    <div class="loading-shade" *ngIf="isLoadingResults">
-        <mat-spinner *ngIf="isLoadingResults">Yada yady</mat-spinner>
+    <div class="loading-overlay fa-4x" *ngIf="isLoadingResults">
+        <i class="fas fa-spinner fa-pulse"></i>
     </div>
 
     <div class="table-container">
