@@ -1,0 +1,24 @@
+<div class="container mt-5">
+
+  <h2 class="my-3">{{pageTitle}}</h2>
+
+  <form>
+    <div class="row">
+      <div class="col-lg-4 col-md-6">
+        <div class="form-group">
+          <label for="selectedCurrency">Convertion Currency</label>
+          <select required [(ngModel)]="selectedCurrency" (change)="onChange($event.target.value)" name="selectedCurrency" class="form-control">
+            <option *ngFor="let availableCurrency of availableCurrencies" [value]="availableCurrency.value">
+              {{availableCurrency.text}}</option>
+          </select>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-6 d-flex">
+        <button type="submit" (click)="doSave()" class="btn btn-primary mt-auto mb-3" [disabled]="isSaveDisabled">
+          <i class="fa fa-check mr-2" *ngIf="shouldShowSaveSuccess"></i>Save
+        </button>
+      </div>
+    </div>
+  </form>
+
+</div>
