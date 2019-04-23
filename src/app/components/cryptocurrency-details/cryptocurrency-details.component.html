@@ -1,0 +1,40 @@
+<div class="container mt-5">
+  <h2 class="mb-3">Cryptocurrency details</h2>
+
+  <div class="card mb-3" *ngIf="cryptocurrency">
+    <div class="row no-gutters">
+      <div class="col-md-4 d-flex flex-wrap align-items-center">
+        <img [src]="'https://s2.coinmarketcap.com/static/img/coins/128x128/' + cryptocurrency.id + '.png'" class="m-auto" alt="Litecoin iMage">
+      </div>
+      <div class="col-md-8">
+        <div class="card-body">
+          <h5 class="card-title">{{ cryptocurrency.name }} details for selected currency ({{ currency }})</h5>
+          <dl class="row">
+            <dt class="col-sm-3">Rank</dt>
+            <dd class="col-sm-9">#{{ cryptocurrency.cmc_rank }}</dd>
+
+            <dt class="col-sm-3">Name</dt>
+            <dd class="col-sm-9">{{ cryptocurrency.name }}</dd>
+
+            <dt class="col-sm-3">Symbol</dt>
+            <dd class="col-sm-9">{{ cryptocurrency.symbol }}</dd>
+
+            <dt class="col-sm-3 text-truncate">Price</dt>
+            <dd class="col-sm-9">{{ cryptocurrency.quote[currency].price | currency:currency }}</dd>
+
+            <dt class="col-sm-3 text-truncate">Volume (24h)</dt>
+            <dd class="col-sm-9">{{ cryptocurrency.quote[currency].volume_24h | currency:currency }}</dd>
+
+            <dt class="col-sm-3 text-truncate">Market Cap</dt>
+            <dd class="col-sm-9">{{ cryptocurrency.quote[currency].market_cap | currency:currency }}</dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button (click)="goBack()" class="btn btn-primary">
+    <i class="fa fa-chevron-left mr-2"></i>Go Back
+  </button>
+
+</div>
