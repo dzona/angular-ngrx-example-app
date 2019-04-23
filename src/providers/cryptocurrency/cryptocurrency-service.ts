@@ -22,7 +22,7 @@ export class CryptocurrencyService {
             convert: currency,
             sort: sort,
             sort_dir: sort_dir
-        }, { observe: 'response' });
+        });
     }
 
 
