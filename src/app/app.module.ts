@@ -9,8 +9,6 @@ import {MatTableModule} from '@angular/material/table';
 
 import { AppComponent } from './app.component';
 import { CryptocurrencyListComponent } from './cryprocurrencies/cryptocurrency-list.component';
-import { CryptocurrencyService } from 'src/providers/cryptocurrency/cryptocurrency-service';
-import { Api } from 'src/providers/api/api';
 import { TokenInterceptor } from 'src/providers/api/token.interceptor';
 
 @NgModule({
@@ -31,8 +29,6 @@ import { TokenInterceptor } from 'src/providers/api/token.interceptor';
     MatSortModule
   ],
   providers: [
-    Api,
-    CryptocurrencyService,
     { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true }
   ],
   bootstrap: [AppComponent]
