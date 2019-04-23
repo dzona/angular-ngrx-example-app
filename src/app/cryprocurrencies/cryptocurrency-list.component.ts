@@ -18,7 +18,7 @@ export class CryptocurrencyListComponent implements AfterViewInit {
 
   public cryptocurrencies: Cryptocurrency[] = [];
 
-  public displayedColumns: string[] = ['id', 'name', 'symbol', 'price', 'percent_change_24h', 'date_added'];
+  public displayedColumns: string[] = ['id', 'name', 'symbol', 'price', 'percent_change_24h', 'date_added', 'actions'];
   public resultsLength = 0;
   public pageSize = 10;
   public isLoadingResults = true;
@@ -41,13 +41,14 @@ export class CryptocurrencyListComponent implements AfterViewInit {
 
           return this.cryptoService.getAll(this.currency, this.paginator.pageIndex + 1, this.sort.active, this.sort.direction, this.pageSize);
         }),
-        map((response: ApiResponse) => {
+        map(response => {
+          let apiResponse = new ApiResponse(response);
           this.isLoadingResults = false;
-          this.resultsLength = response.getTotalCount();
+          this.resultsLength = apiResponse.getTotalCount();
 
-          return response.isSuccess ? response.data.map(data => new Cryptocurrency(data)) : [];
+          return apiResponse.isSuccess ? apiResponse.data.map(data => new Cryptocurrency(data)) : [];
         }),
-        catchError(() => {
+        catchError((err) => {
           this.isLoadingResults = false;
           this.resultsLength = 100;
 
@@ -354,6 +355,7 @@ export class CryptocurrencyListComponent implements AfterViewInit {
           }
         }
       },
+
       {
         "id": 1958,
         "name": "TRON",
