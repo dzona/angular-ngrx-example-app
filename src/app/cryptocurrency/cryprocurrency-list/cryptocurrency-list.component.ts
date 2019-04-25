@@ -29,7 +29,6 @@ export class CryptocurrencyListComponent implements AfterViewInit {
 
   constructor(
     private store: Store<any>,
-    //private cryptoService: CryptocurrencyService
   ) { }
 
   ngOnInit() {
@@ -56,39 +55,27 @@ export class CryptocurrencyListComponent implements AfterViewInit {
           this.store.dispatch(new CryptocurrencyListLoad(this.getQueryParams()));
 
           return this.store.pipe(select('cryptocurrency'));
-
-          // return this.cryptoService.getAll(this.currency, this.paginator.pageIndex + 1, this.sort.active, this.sort.direction, this.pageSize);
-        }),
+         }),
         map((state: CryptocurrencyState) => {
-          // let apiResponse = new ApiResponse(response);
           this.isLoadingResults = false;
           this.resultsLength = state.cryptocurrencyTotal;
-          console.log('final mapping from crypto list: ', state);
-          console.log(this.cacheKey in state.cryptocurrencies ? 'YES' : 'NO');
 
           return this.cacheKey in state.cryptocurrencies ? state.cryptocurrencies[this.cacheKey].map(data => new Cryptocurrency(data)) : [];
-
-          // return apiResponse.isSuccess ? apiResponse.data.map(data => new Cryptocurrency(data)) : [];
         }),
         catchError((err) => {
           this.isLoadingResults = false;
           this.resultsLength = 0;
-          console.log('ooops, something wet wrong, returning dummy data', err);
 
           return observableOf(this.getPageOfDummyData(this.paginator.pageIndex).map(data => new Cryptocurrency(data)));
         })
       )
       .subscribe((cryptocurrencies: Cryptocurrency[]) => {
-        console.log('subscribed, dispatching crypto currency list action', cryptocurrencies);
-        // this.store.dispatch(new CryptocurrencyListLoaded({ [this.cacheKey]: cryptocurrencies }));
         return this.cryptocurrencies = cryptocurrencies
       });
   }
 
   private get cacheKey(): string {
     return JSON.stringify(this.getQueryParams());
-    //return 'somekey';
-    //return `currency:${this.currency};page:${this.paginator.pageIndex};sort:${this.sort.active};direction:${this.sort.direction};size:${this.pageSize}`;
   }
 
   private getQueryParams() {

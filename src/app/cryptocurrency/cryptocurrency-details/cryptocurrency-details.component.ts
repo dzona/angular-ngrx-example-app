@@ -5,6 +5,7 @@ import { ApiResponse } from 'src/app/models/api-response';
 import { CryptocurrencyService } from 'src/app/providers/cryptocurrency/cryptocurrency-service';
 import { of as observableOf } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
+import { select, Store } from '@ngrx/store';
 
 @Component({
   templateUrl: './cryptocurrency-details.component.html',
@@ -19,6 +20,7 @@ export class CryptocurrencyDetailsComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
+    private store: Store<any>,
     private cryptoService: CryptocurrencyService
   ) {
 
@@ -26,21 +28,24 @@ export class CryptocurrencyDetailsComponent implements OnInit {
 
   ngOnInit() {
     this.id = +this.route.snapshot.paramMap.get('id');
-    this.currency = this.cryptoService.getSelectedCurrency();
 
-    this.cryptoService.get(this.id, this.currency).pipe(
-      map(response => {
-        let apiResponse = new ApiResponse(response);
-
-        return apiResponse.isSuccess ? new Cryptocurrency(apiResponse.data[this.id]) : null;
-      }),
-      catchError((err) => {
-        return observableOf(new Cryptocurrency(this.dummyResponse.data['1']));
-      })
-    ).subscribe((cryptocurrency: Cryptocurrency) => {
-      return this.cryptocurrency = cryptocurrency
-    });
-
+    this.store.pipe(select('cryptocurrency')).subscribe(
+      cryptocurrency => {
+        this.currency = cryptocurrency.selectedCurrency;
+        this.cryptoService.get(this.id, this.currency).pipe(
+          map(response => {
+            let apiResponse = new ApiResponse(response);
+    
+            return apiResponse.isSuccess ? new Cryptocurrency(apiResponse.data[this.id]) : null;
+          }),
+          catchError((err) => {
+            return observableOf(new Cryptocurrency(this.dummyResponse.data['1']));
+          })
+        ).subscribe((cryptocurrency: Cryptocurrency) => {
+          return this.cryptocurrency = cryptocurrency
+        });
+      }
+    );
   }
 
   goBack() {

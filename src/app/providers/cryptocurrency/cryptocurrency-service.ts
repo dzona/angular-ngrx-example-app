@@ -10,32 +10,23 @@ export class CryptocurrencyService {
 
     constructor(public api: Api) { }
 
-    public getSelectedCurrency(): string {
-        return localStorage.getItem('selected-currency');
-    }
-
-    public setSelectedCurrency(currency: string): void {
-        localStorage.setItem('selected-currency', currency);
-    }
-
     public get(id: number, currency: string = 'USD'): Observable<any> {
         return this.api.get(`cryptocurrency/quotes/latest`, { id: id, convert: currency });
     }
 
-    public getAll(currency: string = 'USD', page: number = 1, sort: string = 'cmc_rank', sort_dir: string = 'desc', limit: number = 10): Observable<any> {
+    public getAll(params: any): Observable<any> {
 
-        let start = (page - 1) * limit + 1;
-        let params = {
-            start: start,
-            limit: limit,
-            convert: currency,
-            sort_dir: sort_dir
+        let queryParams = {
+            start: params.pageIndex * params.pageSize + 1,
+            limit: params.pageSize,
+            convert: params.currency,
+            sort_dir: params.sortDir
         };
 
-        if (sort && sort != 'cmc_rank') {
-            params['sort'] = sort;
+        if (params.sortAttr && params.sortAttr != 'cmc_rank') {
+            queryParams['sort'] = params.sortAttr;
         }
 
-        return this.api.get('cryptocurrency/listings/latest', params);
+        return this.api.get('cryptocurrency/listings/latest', queryParams);
     }
 }

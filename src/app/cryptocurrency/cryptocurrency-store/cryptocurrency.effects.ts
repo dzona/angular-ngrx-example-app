@@ -22,8 +22,6 @@ export class CryptocurrencyEffects {
                 response => {
                     let apiResponse = new ApiResponse(response);
                     let cacheKey = JSON.stringify(action.payload);
-                    console.log('action', action);
-                    console.log('log from http response', response);
 
                     return apiResponse.isSuccess ?
                         new cryptocurrencyActions.CryptocurrencyListLoaded({ [cacheKey]: apiResponse.data }) :
