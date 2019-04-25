@@ -37,10 +37,9 @@ export class CryptocurrencyDetailsComponent implements OnInit {
       catchError((err) => {
         return observableOf(new Cryptocurrency(this.dummyResponse.data['1']));
       })
-    )
-      .subscribe((cryptocurrency: Cryptocurrency) => {
-        return this.cryptocurrency = cryptocurrency
-      });
+    ).subscribe((cryptocurrency: Cryptocurrency) => {
+      return this.cryptocurrency = cryptocurrency
+    });
 
   }
 

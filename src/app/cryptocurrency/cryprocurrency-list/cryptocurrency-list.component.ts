@@ -3,8 +3,11 @@ import { Component, ViewChild, AfterViewInit, ViewEncapsulation } from '@angular
 import { MatPaginator, MatSort } from '@angular/material';
 import { merge, of as observableOf } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
-import { CryptocurrencyService } from 'src/app/providers/cryptocurrency/cryptocurrency-service';
+//import { CryptocurrencyService } from 'src/app/providers/cryptocurrency/cryptocurrency-service';
 import { ApiResponse } from '../../models/api-response';
+import { Store, select } from '@ngrx/store';
+import { CryptocurrencyListLoad } from '../cryptocurrency-store/cryptocurrency.actions';
+import { CryptocurrencyState } from '../cryptocurrency-store/cryptocurrency.reducers';
 
 @Component({
   templateUrl: './cryptocurrency-list.component.html',
@@ -14,22 +17,27 @@ import { ApiResponse } from '../../models/api-response';
 export class CryptocurrencyListComponent implements AfterViewInit {
 
   public pageTitle: string = 'Top cryprocurrencies list';
-
-  public cryptocurrencies: Cryptocurrency[] = [];
-
   public displayedColumns: string[] = ['cmc_rank', 'name', 'symbol', 'price', 'percent_change_24h', 'date_added', 'actions'];
-  public resultsLength = 0;
-  public pageSize = 10;
-  public isLoadingResults = true;
-  public currency;
+  public cryptocurrencies: Cryptocurrency[] = [];
+  public isLoadingResults: boolean = true;
+  public resultsLength: number = 0;
+  public pageSize: number = 10;
+  public currency: string;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
 
-  constructor(private cryptoService: CryptocurrencyService) { }
+  constructor(
+    private store: Store<any>,
+    //private cryptoService: CryptocurrencyService
+  ) { }
 
   ngOnInit() {
-    this.currency = this.cryptoService.getSelectedCurrency();
+    this.store.pipe(select('cryptocurrency')).subscribe(
+      cryptocurrency => {
+        this.currency = cryptocurrency.selectedCurrency;
+      }
+    );
   }
 
   ngAfterViewInit() {
@@ -41,26 +49,56 @@ export class CryptocurrencyListComponent implements AfterViewInit {
         startWith({}),
         switchMap(() => {
           this.isLoadingResults = true;
+          let params = {
 
-          return this.cryptoService.getAll(this.currency, this.paginator.pageIndex + 1, this.sort.active, this.sort.direction, this.pageSize);
+          };
+
+          this.store.dispatch(new CryptocurrencyListLoad(this.getQueryParams()));
+
+          return this.store.pipe(select('cryptocurrency'));
+
+          // return this.cryptoService.getAll(this.currency, this.paginator.pageIndex + 1, this.sort.active, this.sort.direction, this.pageSize);
         }),
-        map(response => {
-          let apiResponse = new ApiResponse(response);
+        map((state: CryptocurrencyState) => {
+          // let apiResponse = new ApiResponse(response);
           this.isLoadingResults = false;
-          this.resultsLength = apiResponse.getTotalCount();
+          this.resultsLength = state.cryptocurrencyTotal;
+          console.log('final mapping from crypto list: ', state);
+          console.log(this.cacheKey in state.cryptocurrencies ? 'YES' : 'NO');
 
-          return apiResponse.isSuccess ? apiResponse.data.map(data => new Cryptocurrency(data)) : [];
+          return this.cacheKey in state.cryptocurrencies ? state.cryptocurrencies[this.cacheKey].map(data => new Cryptocurrency(data)) : [];
+
+          // return apiResponse.isSuccess ? apiResponse.data.map(data => new Cryptocurrency(data)) : [];
         }),
         catchError((err) => {
           this.isLoadingResults = false;
-          this.resultsLength = 100;
+          this.resultsLength = 0;
+          console.log('ooops, something wet wrong, returning dummy data', err);
 
           return observableOf(this.getPageOfDummyData(this.paginator.pageIndex).map(data => new Cryptocurrency(data)));
         })
       )
       .subscribe((cryptocurrencies: Cryptocurrency[]) => {
+        console.log('subscribed, dispatching crypto currency list action', cryptocurrencies);
+        // this.store.dispatch(new CryptocurrencyListLoaded({ [this.cacheKey]: cryptocurrencies }));
         return this.cryptocurrencies = cryptocurrencies
       });
+  }
+
+  private get cacheKey(): string {
+    return JSON.stringify(this.getQueryParams());
+    //return 'somekey';
+    //return `currency:${this.currency};page:${this.paginator.pageIndex};sort:${this.sort.active};direction:${this.sort.direction};size:${this.pageSize}`;
+  }
+
+  private getQueryParams() {
+    return {
+      pageIndex: this.paginator.pageIndex,
+      pageSize: this.pageSize,
+      currency: this.currency,
+      sortDir: this.sort.direction,
+      sortAttr: this.sort.active
+    };
   }
 
   private getPageOfDummyData(page: number) {
