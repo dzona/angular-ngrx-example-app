@@ -6,6 +6,7 @@ import { map, catchError, withLatestFrom, filter, switchMap, share } from 'rxjs/
 import { ApiResponse } from 'src/app/models/api-response';
 import { of as observableOf } from 'rxjs';
 import { Store, select } from '@ngrx/store';
+import { CryptocurrencyState } from './cryptocurrency.reducers';
 
 @Injectable()
 export class CryptocurrencyEffects {
@@ -20,11 +21,15 @@ export class CryptocurrencyEffects {
     loadCryptocurrencies = this.actions$.pipe(
         ofType(cryptocurrencyActions.CryptocurrencyActionTypes.CryptocurrencyListLoad),
         withLatestFrom(this.store.pipe(select('cryptocurrency'))),
-        filter(([action, store]) => {
+        filter((res) => {
+            let action: cryptocurrencyActions.CryptocurrencyListLoaded = res[0];
+            let store: CryptocurrencyState = res[1];
             let cacheKey = JSON.stringify(action.payload);
             return !(cacheKey in store.cryptocurrencies);
         }),
-        switchMap(([action, store]) => {
+        switchMap((res) => {
+            let action: cryptocurrencyActions.CryptocurrencyListLoaded = res[0];
+            let store: CryptocurrencyState = res[1];
             return this.service.getAll(action.payload).pipe(
                 map(
                     response => {
