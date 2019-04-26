@@ -1,20 +1,16 @@
 import { Cryptocurrency } from '../../models/cryptocurrency';
-import { Component, ViewChild, AfterViewInit, ViewEncapsulation } from '@angular/core';
+import { Component, ViewChild, AfterViewInit } from '@angular/core';
 import { MatPaginator, MatSort } from '@angular/material';
 import { merge, of as observableOf } from 'rxjs';
-import { catchError, map, startWith, switchMap, mergeMap, takeWhile, filter } from 'rxjs/operators';
-//import { CryptocurrencyService } from 'src/app/providers/cryptocurrency/cryptocurrency-service';
-import { ApiResponse } from '../../models/api-response';
+import { catchError, map, startWith, switchMap, takeWhile, filter } from 'rxjs/operators';
 import { Store, select, Action } from '@ngrx/store';
-import { CryptocurrencyListLoad, CryptocurrencyListLoaded, CryptocurrencyActionTypes } from '../cryptocurrency-store/cryptocurrency.actions';
-import { CryptocurrencyState, getCryptocurrencyPage } from '../cryptocurrency-store/cryptocurrency.reducers';
-import { DevtoolsDispatcher } from '@ngrx/store-devtools/src/devtools-dispatcher';
+import { CryptocurrencyListLoad, CryptocurrencyActionTypes } from '../cryptocurrency-store/cryptocurrency.actions';
+import { CryptocurrencyState } from '../cryptocurrency-store/cryptocurrency.reducers';
 import { CryptocurrencyEffects } from '../cryptocurrency-store/cryptocurrency.effects';
 
 @Component({
   templateUrl: './cryptocurrency-list.component.html',
   styleUrls: ['./cryptocurrency-list.component.css'],
-  encapsulation: ViewEncapsulation.None
 })
 export class CryptocurrencyListComponent implements AfterViewInit {
 
@@ -59,31 +55,12 @@ export class CryptocurrencyListComponent implements AfterViewInit {
           this.cryptoEffects.loadCryptocurrencies.pipe(
             takeWhile(() => this.componentActive),
             filter((action: Action) => action.type === CryptocurrencyActionTypes.CryptocurrencyListLoaded)).subscribe((x) => {
-              this.store.pipe(select('cryptocurrency'),
-              takeWhile(() => this.componentActive),
-                map((state: CryptocurrencyState) => {
-                  let hasData: boolean = this.cacheKey in state.cryptocurrencies;
-                  if (hasData) {
-                    this.isLoadingResults = false;
-                    this.resultsLength = state.cryptocurrencyTotal;
-                  }
-                  return this.cacheKey in state.cryptocurrencies ? state.cryptocurrencies[this.cacheKey].map(data => new Cryptocurrency(data)) : [];
-                })).subscribe((cryptocurrencies: Cryptocurrency[]) => {
-                  return this.cryptocurrencies = cryptocurrencies
-                });
+              this.selectCurrentPage().subscribe((cryptocurrencies: Cryptocurrency[]) => {
+                return this.cryptocurrencies = cryptocurrencies
+              });
             });
 
-          return this.store.pipe(select('cryptocurrency'), takeWhile(() => this.componentActive));
-        }),
-        map((state: CryptocurrencyState) => {
-
-          let hasData: boolean = this.cacheKey in state.cryptocurrencies;
-          if (hasData) {
-            this.isLoadingResults = false;
-            this.resultsLength = state.cryptocurrencyTotal;
-          }
-
-          return this.cacheKey in state.cryptocurrencies ? state.cryptocurrencies[this.cacheKey].map(data => new Cryptocurrency(data)) : [];
+          return this.selectCurrentPage(); 
         }),
         catchError((err) => {
           this.isLoadingResults = false;
@@ -103,6 +80,21 @@ export class CryptocurrencyListComponent implements AfterViewInit {
 
   private get cacheKey(): string {
     return JSON.stringify(this.getQueryParams());
+  }
+
+  private selectCurrentPage() {
+    return this.store.pipe(
+      select('cryptocurrency'),
+      takeWhile(() => this.componentActive),
+      map((state: CryptocurrencyState) => {
+        let hasData: boolean = this.cacheKey in state.cryptocurrencies;
+        if (hasData) {
+          this.isLoadingResults = false;
+          this.resultsLength = state.cryptocurrencyTotal;
+        }
+        return this.cacheKey in state.cryptocurrencies ? state.cryptocurrencies[this.cacheKey].map(data => new Cryptocurrency(data)) : [];
+      })
+    );
   }
 
   private getQueryParams() {
