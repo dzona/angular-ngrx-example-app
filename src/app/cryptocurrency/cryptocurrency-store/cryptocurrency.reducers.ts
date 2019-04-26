@@ -1,5 +1,5 @@
 import { CryptocurrencyActionTypes, CryptocurrencyActions } from './cryptocurrency.actions';
-import *  as deepmerge from 'deepmerge';
+import { createSelector } from '@ngrx/store';
 
 export interface CryptocurrencyState {
     selectedCurrency: string,
@@ -10,26 +10,27 @@ export interface CryptocurrencyState {
 
 export const initialState: CryptocurrencyState = {
     selectedCurrency: 'USD',
-    cryptocurrencyTotal: 100, //normally would be 0
+    cryptocurrencyTotal: 0, 
     cryptocurrencies: {},
     error: ''
 };
 
+export const getCryptocurrencyPage = () =>
+  createSelector(
+      (state: CryptocurrencyState, props: any) => state.cryptocurrencies[props.key]
+  );
+
 export function cryptocurrencyReducer(state = initialState, action: CryptocurrencyActions) {
     switch (action.type) {
         case CryptocurrencyActionTypes.SelectedCurrencyChanged:
-            console.log('existing state:' + JSON.stringify(state));
-            console.log('payload:' + action.payload);
             return {
                 ...state,
                 selectedCurrency: action.payload
             }
         case CryptocurrencyActionTypes.CryptocurrencyListLoaded:
-            console.log('existing state:' + JSON.stringify(state));
-            console.log('payload:' + action.payload);
+            state.cryptocurrencyTotal = action.payload.totalRecords; 
             state.cryptocurrencies[action.payload.key] = action.payload.data;
             return state;
-            //return deepmerge(state, { cryptocurrencies: action.payload });
         case CryptocurrencyActionTypes.CryptocurrencyListLoadFailed:
             return {
                 ...state,
