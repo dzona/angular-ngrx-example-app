@@ -24,7 +24,7 @@ export class CryptocurrencyEffects {
                     let cacheKey = JSON.stringify(action.payload);
 
                     return apiResponse.isSuccess ?
-                        new cryptocurrencyActions.CryptocurrencyListLoaded({ [cacheKey]: apiResponse.data }) :
+                        new cryptocurrencyActions.CryptocurrencyListLoaded({ key: cacheKey, data: apiResponse.data }) :
                         new cryptocurrencyActions.CryptocurrencyListLoadFailed(`code: ${apiResponse.status.error_code}; message: ${apiResponse.status.error_message}`);
                 }
             ),

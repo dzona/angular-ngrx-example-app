@@ -24,7 +24,7 @@ export class CryptocurrencyListLoad implements Action {
 export class CryptocurrencyListLoaded implements Action {
     readonly type = CryptocurrencyActionTypes.CryptocurrencyListLoaded;
 
-    constructor(public payload: { [key: string]: Cryptocurrency[] }) { }
+    constructor(public payload: { key: string, data: Cryptocurrency[] }) { }
 }
 
 export class CryptocurrencyListLoadFailed implements Action {

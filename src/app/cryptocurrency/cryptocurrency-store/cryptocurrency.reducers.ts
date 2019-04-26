@@ -27,10 +27,8 @@ export function cryptocurrencyReducer(state = initialState, action: Cryptocurren
         case CryptocurrencyActionTypes.CryptocurrencyListLoaded:
             console.log('existing state:' + JSON.stringify(state));
             console.log('payload:' + action.payload);
-            return {
-                ...state,
-                cryptocurrencies: action.payload
-            }
+            state.cryptocurrencies[action.payload.key] = action.payload.data;
+            return state;
             //return deepmerge(state, { cryptocurrencies: action.payload });
         case CryptocurrencyActionTypes.CryptocurrencyListLoadFailed:
             return {
