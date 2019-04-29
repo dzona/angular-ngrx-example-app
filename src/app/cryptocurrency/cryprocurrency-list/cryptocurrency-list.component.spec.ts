@@ -1,16 +1,35 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
+import { RouterTestingModule } from '@angular/router/testing';
 import { CryptocurrencyListComponent } from './cryptocurrency-list.component';
+import { MatTableModule, MatPaginatorModule, MatSortModule } from '@angular/material';
+import { Store } from '@ngrx/store';
+import { provideMockStore, MockStore } from '@ngrx/store/testing';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { BrowserModule } from '@angular/platform-browser';
 
 describe('CryptocurrencyListComponent', () => {
   let component: CryptocurrencyListComponent;
   let fixture: ComponentFixture<CryptocurrencyListComponent>;
+  let store: MockStore<{ loggedIn: boolean }>;
+  const initialState = { loggedIn: false };
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ CryptocurrencyListComponent ]
+      imports: [
+        MatTableModule,
+        MatPaginatorModule,
+        MatSortModule,
+        RouterTestingModule,
+        BrowserModule,
+        BrowserAnimationsModule
+      ],
+      declarations: [ CryptocurrencyListComponent ],
+      providers: [provideMockStore({ initialState })]
     })
     .compileComponents();
+
+    store = TestBed.get(Store);
   }));
 
   beforeEach(() => {
