@@ -4,7 +4,8 @@ import { Cryptocurrency } from 'src/app/models/cryptocurrency';
 export enum CryptocurrencyActionTypes {
     SelectedCurrencyChanged = '[Cryptocurrency] Selected Currency Updated',
     CryptocurrencyListLoad = '[Cryptocurrency] List Load',
-    CryptocurrencyListLoaded = '[Cryptocurrency] List Load Success',
+    CryptocurrencyListLoaded = '[Cryptocurrency] List Loaded (cached)',
+    CryptocurrencyListLoadSuccess = '[Cryptocurrency] List Load Success',
     CryptocurrencyListLoadFailed = '[Cryptocurrency] List Load Failed',
     CryptocurrencyListClear = '[Cryptocurrency] List Clear'
 }
@@ -23,6 +24,10 @@ export class CryptocurrencyListLoad implements Action {
 
 export class CryptocurrencyListLoaded implements Action {
     readonly type = CryptocurrencyActionTypes.CryptocurrencyListLoaded;
+}
+
+export class CryptocurrencyListLoadSuccess implements Action {
+    readonly type = CryptocurrencyActionTypes.CryptocurrencyListLoadSuccess;
 
     constructor(public payload: { key: string, data: Cryptocurrency[], totalRecords: number }) { }
 }
@@ -40,5 +45,6 @@ export class CryptocurrencyListClear implements Action {
 export type CryptocurrencyActions = SelectedCurrencyChanged
     | CryptocurrencyListLoad
     | CryptocurrencyListLoaded
+    | CryptocurrencyListLoadSuccess
     | CryptocurrencyListLoadFailed
     | CryptocurrencyListClear;

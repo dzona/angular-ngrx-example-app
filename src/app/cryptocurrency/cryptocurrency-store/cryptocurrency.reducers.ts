@@ -5,20 +5,22 @@ export interface CryptocurrencyState {
     selectedCurrency: string,
     cryptocurrencies: any,
     cryptocurrencyTotal: number,
-    error: string
+    error: string,
+    isListLoading: boolean
 }
 
 export const initialState: CryptocurrencyState = {
     selectedCurrency: 'USD',
-    cryptocurrencyTotal: 0, 
+    cryptocurrencyTotal: 0,
     cryptocurrencies: {},
-    error: ''
+    error: '',
+    isListLoading: false
 };
 
-export const getCryptocurrencyPage = () =>
-  createSelector(
-      (state: CryptocurrencyState, props: any) => state.cryptocurrencies[props.key]
-  );
+export const getCryprocurrencyState = (state: CryptocurrencyState) => state;
+export const getCryptocurrencyPage = createSelector(getCryprocurrencyState,
+    (state) => state
+);
 
 export function cryptocurrencyReducer(state = initialState, action: CryptocurrencyActions) {
     switch (action.type) {
@@ -27,13 +29,26 @@ export function cryptocurrencyReducer(state = initialState, action: Cryptocurren
                 ...state,
                 selectedCurrency: action.payload
             }
+        case CryptocurrencyActionTypes.CryptocurrencyListLoad:
+            return {
+                ...state,
+                isListLoading: true
+            };
         case CryptocurrencyActionTypes.CryptocurrencyListLoaded:
-            state.cryptocurrencyTotal = action.payload.totalRecords; 
+            return {
+                ...state,
+                isListLoading: false
+            };
+        case CryptocurrencyActionTypes.CryptocurrencyListLoadSuccess:
+            state.isListLoading = false;
+            state.cryptocurrencyTotal = action.payload.totalRecords;
             state.cryptocurrencies[action.payload.key] = action.payload.data;
+
             return state;
         case CryptocurrencyActionTypes.CryptocurrencyListLoadFailed:
             return {
                 ...state,
+                isListLoading: false,
                 error: action.payload
             };
         case CryptocurrencyActionTypes.CryptocurrencyListClear:

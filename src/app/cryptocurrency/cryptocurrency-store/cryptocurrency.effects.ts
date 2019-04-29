@@ -22,13 +22,18 @@ export class CryptocurrencyEffects {
         ofType(cryptocurrencyActions.CryptocurrencyActionTypes.CryptocurrencyListLoad),
         withLatestFrom(this.store.pipe(select('cryptocurrency'))),
         filter((res) => {
-            let action: cryptocurrencyActions.CryptocurrencyListLoaded = res[0];
+            let action: cryptocurrencyActions.CryptocurrencyListLoadSuccess = res[0];
             let store: CryptocurrencyState = res[1];
             let cacheKey = JSON.stringify(action.payload);
-            return !(cacheKey in store.cryptocurrencies);
+            let isPageCached: boolean = cacheKey in store.cryptocurrencies;
+
+            if (isPageCached) {
+                this.store.dispatch(new cryptocurrencyActions.CryptocurrencyListLoaded());
+            }
+            return !isPageCached;
         }),
         switchMap((res) => {
-            let action: cryptocurrencyActions.CryptocurrencyListLoaded = res[0];
+            let action: cryptocurrencyActions.CryptocurrencyListLoadSuccess = res[0];
             let store: CryptocurrencyState = res[1];
             return this.service.getAll(action.payload).pipe(
                 map(
@@ -37,12 +42,12 @@ export class CryptocurrencyEffects {
                         let cacheKey = JSON.stringify(action.payload);
 
                         return apiResponse.isSuccess ?
-                            new cryptocurrencyActions.CryptocurrencyListLoaded({ key: cacheKey, data: apiResponse.data, totalRecords: apiResponse.getTotalCount()}) :
+                            new cryptocurrencyActions.CryptocurrencyListLoadSuccess({ key: cacheKey, data: apiResponse.data, totalRecords: apiResponse.getTotalCount() }) :
                             new cryptocurrencyActions.CryptocurrencyListLoadFailed(`code: ${apiResponse.status.error_code}; message: ${apiResponse.status.error_message}`);
                     }
                 ),
                 catchError(err => observableOf(new cryptocurrencyActions.CryptocurrencyListLoadFailed(err)))
-            )
+            );
         }
         ), share()
     )

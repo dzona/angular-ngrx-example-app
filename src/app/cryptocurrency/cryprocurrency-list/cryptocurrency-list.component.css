@@ -1,5 +1,6 @@
 .cryptocurrency-table {
     position: relative;
+    min-height: 675px;
 }
 
 .cryptocurrency-table tr.mat-footer-row, 

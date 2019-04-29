@@ -4,7 +4,7 @@
 <h2 class="my-3">{{pageTitle}}</h2>
 
 <div *ngIf="cryptocurrencies" class="cryptocurrency-table">
-    <div class="loading-overlay fa-4x" *ngIf="isLoadingResults">
+    <div class="loading-overlay fa-4x" *ngIf="(isLoadingResults$ | async)">
         <i class="fas fa-spinner fa-pulse"></i>
     </div>
 
