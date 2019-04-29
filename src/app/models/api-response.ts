@@ -8,8 +8,12 @@ export class ApiResponse extends BaseModel {
         return this.status.error_code == 0;
     }
 
+    getData(): Array<any> {
+        return this.data;
+    }
+
     getTotalCount(): number {
-        return this.isSuccess ? 100 : 0; //hardcoded to 100 for sake of test
+        return this.isSuccess ? this.data.length : 0;
     }
 }
 

@@ -40,11 +40,14 @@ export function cryptocurrencyReducer(state = initialState, action: Cryptocurren
                 isListLoading: false
             };
         case CryptocurrencyActionTypes.CryptocurrencyListLoadSuccess:
-            state.isListLoading = false;
-            state.cryptocurrencyTotal = action.payload.totalRecords;
             state.cryptocurrencies[action.payload.key] = action.payload.data;
 
-            return state;
+            return {
+                ...state,
+                isListLoading: false,
+                cryptocurrencies: state.cryptocurrencies,
+                cryptocurrencyTotal: action.payload.totalRecords
+            };
         case CryptocurrencyActionTypes.CryptocurrencyListLoadFailed:
             return {
                 ...state,
@@ -52,7 +55,11 @@ export function cryptocurrencyReducer(state = initialState, action: Cryptocurren
                 error: action.payload
             };
         case CryptocurrencyActionTypes.CryptocurrencyListClear:
-            return initialState;
+            return {
+                ...state,
+                cryptocurrencies: {},
+                cryptocurrencyTotal: 0
+            };;
         default:
             return state;
     }

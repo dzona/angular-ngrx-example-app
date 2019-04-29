@@ -4,15 +4,16 @@ import { MatPaginator, MatSort } from '@angular/material';
 import { merge, of as observableOf, Observable } from 'rxjs';
 import { catchError, map, startWith, switchMap, takeWhile, filter, delay } from 'rxjs/operators';
 import { Store, select } from '@ngrx/store';
-import { CryptocurrencyListLoad } from '../cryptocurrency-store/cryptocurrency.actions';
-import { CryptocurrencyState, getCryptocurrencyPage } from '../cryptocurrency-store/cryptocurrency.reducers';
-import { CryptocurrencyEffects } from '../cryptocurrency-store/cryptocurrency.effects';
+import { CryptocurrencyListLoad, CryptocurrencyListClear } from '../cryptocurrency-store/cryptocurrency.actions';
+import { CryptocurrencyState } from '../cryptocurrency-store/cryptocurrency.reducers';
 
 @Component({
   templateUrl: './cryptocurrency-list.component.html',
   styleUrls: ['./cryptocurrency-list.component.css'],
 })
 export class CryptocurrencyListComponent implements AfterViewInit {
+
+  private componentActive: boolean = true;
 
   public pageTitle: string = 'Top cryprocurrencies list';
   public displayedColumns: string[] = ['cmc_rank', 'name', 'symbol', 'price', 'percent_change_24h', 'date_added', 'actions'];
@@ -22,27 +23,24 @@ export class CryptocurrencyListComponent implements AfterViewInit {
   public pageSize: number = 10;
   public currency: string;
 
-  private componentActive: boolean = true;
-
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
 
   constructor(private store: Store<any>) { }
 
   ngOnInit() {
-    this.isLoadingResults$ = this.store.pipe(
-      select(state => state.cryptocurrency.isListLoading),
-      takeWhile(() => this.componentActive)
-    );
     this.store.pipe(
       select(state => state.cryptocurrency.selectedCurrency),
       takeWhile(() => this.componentActive)
     ).subscribe(cryptocurrency => this.currency = cryptocurrency);
+
+    this.isLoadingResults$ = this.store.pipe(
+      select(state => state.cryptocurrency.isListLoading),
+      takeWhile(() => this.componentActive)
+    );
   }
 
-
   ngAfterViewInit() {
-
     this.sort.sortChange.subscribe(() => this.paginator.pageIndex = 0);
 
     merge(this.sort.sortChange, this.paginator.page)
@@ -51,7 +49,7 @@ export class CryptocurrencyListComponent implements AfterViewInit {
         startWith({}),
         delay(0),
         switchMap(() => {
-          this.store.dispatch(new CryptocurrencyListLoad(this.getQueryParams()));
+          this.store.dispatch(new CryptocurrencyListLoad(this.currency));
 
           return this.isLoadingResults$.pipe(
             filter((state) => !state),
@@ -63,8 +61,10 @@ export class CryptocurrencyListComponent implements AfterViewInit {
         }),
         map((state: CryptocurrencyState) => {
           this.resultsLength = state.cryptocurrencyTotal;
+          let results: any[] = this.currency in state.cryptocurrencies ?
+            this.getCurrentPageSlice(state.cryptocurrencies[this.currency].sort(this.sortBy())) : [];
 
-          return this.cacheKey in state.cryptocurrencies ? state.cryptocurrencies[this.cacheKey].map(data => new Cryptocurrency(data)) : [];
+          return results.map(data => new Cryptocurrency(data));
         }),
         catchError((err) => {
           this.resultsLength = 0;
@@ -79,18 +79,29 @@ export class CryptocurrencyListComponent implements AfterViewInit {
     this.componentActive = false;
   }
 
-  private get cacheKey(): string {
-    return JSON.stringify(this.getQueryParams());
+  doRefresh(): void {
+    this.store.dispatch(new CryptocurrencyListClear());
+    this.store.dispatch(new CryptocurrencyListLoad(this.currency));
   }
 
-  private getQueryParams() {
-    return {
-      pageIndex: this.paginator.pageIndex,
-      pageSize: this.pageSize,
-      currency: this.currency,
-      sortDir: this.sort.direction,
-      sortAttr: this.sort.active
+  private getCurrentPageSlice(array: []): Array<any> {
+    return array.slice(this.paginator.pageIndex * this.pageSize, (this.paginator.pageIndex + 1) * this.pageSize);
+  }
+
+  private sortBy() {
+    const gt = this.sort.direction === 'desc' ? -1 : 1;
+    const lt = this.sort.direction === 'desc' ? 1 : -1;
+
+    return (a, b) => {
+      if (a[this.sort.active] < b[this.sort.active]) {
+        return lt;
+      }
+      if (a[this.sort.active] > b[this.sort.active]) {
+        return gt;
+      }
+      return 0;
     };
   }
+
 
 }

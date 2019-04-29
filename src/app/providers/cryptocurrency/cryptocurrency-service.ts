@@ -14,19 +14,14 @@ export class CryptocurrencyService {
         return this.api.get(`cryptocurrency/quotes/latest`, { id: id, convert: currency });
     }
 
-    public getAll(params: any): Observable<any> {
+    public getAll(currency: string): Observable<any> {
 
-        let queryParams = {
-            start: params.pageIndex * params.pageSize + 1,
-            limit: params.pageSize,
-            convert: params.currency,
-            sort_dir: params.sortDir
+        let params = {
+            start: 1,
+            limit: 100,
+            convert: currency
         };
 
-        if (params.sortAttr && params.sortAttr != 'cmc_rank') {
-            queryParams['sort'] = params.sortAttr;
-        }
-
-        return this.api.get('cryptocurrency/listings/latest', queryParams);
+        return this.api.get('cryptocurrency/listings/latest', params);
     }
 }
