@@ -4,7 +4,7 @@ import { CryptocurrencyListComponent } from './cryprocurrency-list/cryptocurrenc
 import { CryptocurrencyDetailsComponent } from './cryptocurrency-details/cryptocurrency-details.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
-import { MatNativeDateModule, MatProgressSpinnerModule, MatTableModule, MatPaginatorModule, MatSortModule, MatFormFieldModule } from '@angular/material';
+import { MatTableModule, MatPaginatorModule, MatSortModule } from '@angular/material';
 import { StoreModule } from '@ngrx/store';
 import { CryptocurrencySettingsComponent } from './cryptocurrency-settings/cryptocurrency-settings.component';
 import { cryptocurrencyReducer } from './cryptocurrency-store/cryptocurrency.reducers';
@@ -27,12 +27,9 @@ const routes: Routes = [
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    MatNativeDateModule,
-    MatProgressSpinnerModule,
     MatTableModule,
     MatPaginatorModule,
     MatSortModule,
-    MatFormFieldModule,
     RouterModule.forChild(routes),
     StoreModule.forFeature('cryptocurrency', cryptocurrencyReducer),
     EffectsModule.forFeature([CryptocurrencyEffects])
