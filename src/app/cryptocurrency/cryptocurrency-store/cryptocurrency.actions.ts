@@ -19,7 +19,7 @@ export class SelectedCurrencyChanged implements Action {
 export class CryptocurrencyListLoad implements Action {
     readonly type = CryptocurrencyActionTypes.CryptocurrencyListLoad;
 
-    constructor(public payload: any) { }
+    constructor(public payload: string) { }
 }
 
 export class CryptocurrencyListLoaded implements Action {

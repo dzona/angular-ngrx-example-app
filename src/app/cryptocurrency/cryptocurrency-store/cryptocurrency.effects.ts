@@ -18,14 +18,13 @@ export class CryptocurrencyEffects {
     ) { }
 
     @Effect()
-    loadCryptocurrencies = this.actions$.pipe(
+    loadCryptocurrencies$ = this.actions$.pipe(
         ofType(cryptocurrencyActions.CryptocurrencyActionTypes.CryptocurrencyListLoad),
         withLatestFrom(this.store.pipe(select('cryptocurrency'))),
         filter((res) => {
-            let action: cryptocurrencyActions.CryptocurrencyListLoadSuccess = res[0];
+            let action: cryptocurrencyActions.CryptocurrencyListLoad = res[0];
             let store: CryptocurrencyState = res[1];
-            let cacheKey = JSON.stringify(action.payload);
-            let isPageCached: boolean = cacheKey in store.cryptocurrencies;
+            let isPageCached: boolean = action.payload in store.cryptocurrencies;
 
             if (isPageCached) {
                 this.store.dispatch(new cryptocurrencyActions.CryptocurrencyListLoaded());
@@ -33,16 +32,15 @@ export class CryptocurrencyEffects {
             return !isPageCached;
         }),
         switchMap((res) => {
-            let action: cryptocurrencyActions.CryptocurrencyListLoadSuccess = res[0];
+            let action: cryptocurrencyActions.CryptocurrencyListLoad = res[0];
             let store: CryptocurrencyState = res[1];
             return this.service.getAll(action.payload).pipe(
                 map(
                     response => {
                         let apiResponse = new ApiResponse(response);
-                        let cacheKey = JSON.stringify(action.payload);
 
                         return apiResponse.isSuccess ?
-                            new cryptocurrencyActions.CryptocurrencyListLoadSuccess({ key: cacheKey, data: apiResponse.data, totalRecords: apiResponse.getTotalCount() }) :
+                            new cryptocurrencyActions.CryptocurrencyListLoadSuccess({ key: action.payload, data: apiResponse.getData(), totalRecords: apiResponse.getTotalCount() }) :
                             new cryptocurrencyActions.CryptocurrencyListLoadFailed(`code: ${apiResponse.status.error_code}; message: ${apiResponse.status.error_message}`);
                     }
                 ),
