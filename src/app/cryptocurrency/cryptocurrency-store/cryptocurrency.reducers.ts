@@ -37,6 +37,7 @@ export function cryptocurrencyReducer(state = initialState, action: Cryptocurren
         case CryptocurrencyActionTypes.CryptocurrencyListLoaded:
             return {
                 ...state,
+                error: '',
                 isListLoading: false
             };
         case CryptocurrencyActionTypes.CryptocurrencyListLoadSuccess:
@@ -44,6 +45,7 @@ export function cryptocurrencyReducer(state = initialState, action: Cryptocurren
 
             return {
                 ...state,
+                error: '',
                 isListLoading: false,
                 cryptocurrencies: state.cryptocurrencies,
                 cryptocurrencyTotal: action.payload.totalRecords
