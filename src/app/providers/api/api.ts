@@ -11,7 +11,7 @@ import environment from '../../../environments/environment';
   providedIn: 'root'
 })
 export class Api {
-  url: string = `${environment.apiUrl}/v1`;
+  static url: string = `${environment.apiUrl}/v1`;
 
   constructor(public http: HttpClient) {
   }
@@ -30,23 +30,23 @@ export class Api {
       }
     }
 
-    return this.http.get(this.url + '/' + endpoint, reqOpts);
+    return this.http.get(Api.url + '/' + endpoint, reqOpts);
   }
 
   post(endpoint: string, body: any, reqOpts?: any): Observable<any> {
-    return this.http.post(this.url + '/' + endpoint, body, reqOpts);
+    return this.http.post(Api.url + '/' + endpoint, body, reqOpts);
   }
 
   put(endpoint: string, body: any, reqOpts?: any): Observable<any> {
-    return this.http.put(this.url + '/' + endpoint, body, reqOpts);
+    return this.http.put(Api.url + '/' + endpoint, body, reqOpts);
   }
 
   delete(endpoint: string, reqOpts?: any): Observable<any> {
-    return this.http.delete(this.url + '/' + endpoint, reqOpts);
+    return this.http.delete(Api.url + '/' + endpoint, reqOpts);
   }
 
   patch(endpoint: string, body: any, reqOpts?: any): Observable<any> {
-    return this.http.patch(this.url + '/' + endpoint, body, reqOpts);
+    return this.http.patch(Api.url + '/' + endpoint, body, reqOpts);
   }
 
 }
