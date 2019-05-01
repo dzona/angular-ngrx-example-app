@@ -207,6 +207,7 @@ describe(`CryptocurrencyService`, () => {
 
 describe('CryptocurrencyStore', () => {
     let mockStore: MockStore<CryptocurrencyState>;
+    
     beforeEach(() => {
       TestBed.configureTestingModule({
         providers: [
@@ -215,6 +216,7 @@ describe('CryptocurrencyStore', () => {
       });
       mockStore = TestBed.get(Store);
     });
+
     it('should initialize store', () => {
       mockStore.setState(initialState);
       mockStore.pipe(take(1)).subscribe(state => {

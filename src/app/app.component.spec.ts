@@ -58,7 +58,7 @@ describe('AppComponent', () => {
     settingsLinkDe.triggerEventHandler('click', null);
     fixture.detectChanges();
   
-    //expect(settingsLink.navigatedTo).toBe('/settings');
+    // expect(settingsLink.navigatedTo).toBe('/settings');
   });
 
 });
