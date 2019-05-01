@@ -24,7 +24,7 @@ export class CryptocurrencyEffects {
         filter((res) => {
             let action: cryptocurrencyActions.CryptocurrencyListLoad = res[0];
             let store: CryptocurrencyState = res[1];
-            let isPageCached: boolean = action.payload in store.cryptocurrencies;
+            let isPageCached: boolean = store && 'cryptocurrencies' in store && action.payload in store.cryptocurrencies;
 
             if (isPageCached) {
                 this.store.dispatch(new cryptocurrencyActions.CryptocurrencyListLoaded());

@@ -7,12 +7,13 @@ import { Store } from '@ngrx/store';
 import { provideMockStore, MockStore } from '@ngrx/store/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { BrowserModule } from '@angular/platform-browser';
+import { CryptocurrencyState, initialState as baseState } from '../cryptocurrency-store/cryptocurrency.reducers';
 
 describe('CryptocurrencyListComponent', () => {
   let component: CryptocurrencyListComponent;
   let fixture: ComponentFixture<CryptocurrencyListComponent>;
-  let store: MockStore<{ loggedIn: boolean }>;
-  const initialState = { loggedIn: false };
+  let store: MockStore<CryptocurrencyState>;
+  const initialState = baseState;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({

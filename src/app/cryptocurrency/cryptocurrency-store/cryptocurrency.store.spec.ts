@@ -1,17 +1,20 @@
-import { cryptocurrencyReducer, CryptocurrencyState, initialState } from './cryptocurrency.reducers';
+import { cryptocurrencyReducer, initialState, CryptocurrencyState } from './cryptocurrency.reducers';
 import * as cryptocurrencyActions from './cryptocurrency.actions';
-import { TestBed, getTestBed } from '@angular/core/testing';
+import { TestBed, getTestBed, async } from '@angular/core/testing';
 import { CryptocurrencyService } from 'src/app/providers/cryptocurrency/cryptocurrency-service';
-import { of as observableOf } from 'rxjs';
+import { of as observableOf, ReplaySubject } from 'rxjs';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { ApiResponse } from 'src/app/models/api-response';
 import { Api } from 'src/app/providers/api/api';
-import { Cryptocurrency, ICryptocurrency } from 'src/app/models/cryptocurrency';
-import { HttpParams } from '@angular/common/http';
+import { CryptocurrencyEffects } from './cryptocurrency.effects';
+import { provideMockActions } from '@ngrx/effects/testing';
+import { provideMockStore, MockStore } from '@ngrx/store/testing';
+import { Store } from '@ngrx/store';
+import { take } from 'rxjs/operators';
 
 const currencyMock: string = 'USD';
 
-const cryptocurrencylistMock: Cryptocurrency[] = [
+const cryptocurrencylistMock: any[] = [
     {
         id: 1,
         name: 'Bitcoin',
@@ -202,18 +205,53 @@ describe(`CryptocurrencyService`, () => {
     });
 });
 
+describe('CryptocurrencyStore', () => {
+    let mockStore: MockStore<CryptocurrencyState>;
+    beforeEach(() => {
+      TestBed.configureTestingModule({
+        providers: [
+          provideMockStore({ initialState })
+        ],
+      });
+      mockStore = TestBed.get(Store);
+    });
+    it('should initialize store', () => {
+      mockStore.setState(initialState);
+      mockStore.pipe(take(1)).subscribe(state => {
+        expect(state.error).toBe('');
+      });
+    });
+  });
+  
 describe(`CryptocurrencyReducer`, () => {
 
-    describe(`loadListAction`, () => {
+    describe(`[SelectCurrency] Action`, () => {
+
+        it(`should set selected currency to '${currencyMock}'`, () => {
+            const startState = {
+                ...initialState,
+                selectedCurrency: 'XXX'
+            }; 
+
+            const expectedResult = {
+                ...initialState,
+                selectedCurrency: currencyMock
+            }; 
+
+            const action = new cryptocurrencyActions.SelectedCurrencyChanged(currencyMock);
+            const result = cryptocurrencyReducer(startState, action);
+            expect(result).toEqual(expectedResult);
+        });
+
+    });
+
+    describe(`[ListLoad] Action`, () => {
 
         it(`should set loading flag to 'true'`, () => {
             const expectedResult = {
-                selectedCurrency: 'USD',
-                cryptocurrencyTotal: 0,
-                cryptocurrencies: {},
-                error: '',
+                ...initialState,
                 isListLoading: true
-            };
+            }; 
 
             const action = new cryptocurrencyActions.CryptocurrencyListLoad(currencyMock);
             const result = cryptocurrencyReducer(initialState, action);
@@ -222,7 +260,38 @@ describe(`CryptocurrencyReducer`, () => {
 
     });
 
-    describe(`loadListSuccessAction`, () => {
+    describe(`[ListLoadFailed] Action`, () => {
+
+        it(`should set error message`, () => {
+            const expectedResult = {
+                ...initialState,
+                error: 'error message'
+            }; 
+
+            const action = new cryptocurrencyActions.CryptocurrencyListLoadFailed('error message');
+            const result = cryptocurrencyReducer(initialState, action);
+            expect(result).toEqual(expectedResult);
+        });
+
+    });
+
+    describe(`[ListClear] Action`, () => {
+
+        it(`should clear cryptocurrency cache`, () => {
+            const currentState = {
+                ...initialState,
+                cryptocurrencyTotal: cryptocurrencylistMock.length,
+                cryptocurrencies: {[currencyMock]: cryptocurrencylistMock}
+            }; 
+
+            const action = new cryptocurrencyActions.CryptocurrencyListClear();
+            const result = cryptocurrencyReducer(currentState, action);
+            expect(result).toEqual(initialState);
+        });
+
+    });
+
+    describe(`[ListLoadSuccess] Action`, () => {
 
         it(`should set cryptocurrency results to store at key '${currencyMock}'`, () => {
             const expectedResult = {
@@ -245,3 +314,34 @@ describe(`CryptocurrencyReducer`, () => {
     });
 });
 
+describe(`CryptocurrencyEffects`, () => {
+    let actions;
+    let effects: CryptocurrencyEffects;
+    let mockService: jasmine.SpyObj<CryptocurrencyService>;
+
+    beforeEach((async(() => {
+        mockService = jasmine.createSpyObj('CryptocurrencyService', ['getAll']);
+        TestBed.configureTestingModule({
+            imports: [],
+            providers: [
+                CryptocurrencyEffects,
+                provideMockActions(() => actions),
+                provideMockStore({ initialState }),
+                { provide: CryptocurrencyService, useValue: mockService }
+            ]
+        });
+        actions = new ReplaySubject(1);
+        effects = TestBed.get(CryptocurrencyEffects);
+        let serviceSpy = mockService.getAll.and.returnValue(observableOf(responseGetAllMock));
+    })));
+
+    it('should return new success action after load', (done) => {
+        actions.next(new cryptocurrencyActions.CryptocurrencyListLoad(currencyMock));
+        const sub = effects.loadCryptocurrencies$.subscribe(result => {
+            expect(result).toEqual(new cryptocurrencyActions.CryptocurrencyListLoadSuccess({ key: currencyMock, data: cryptocurrencylistMock, totalRecords: cryptocurrencylistMock.length }));
+            done();
+            setTimeout(() => sub.unsubscribe());
+        });
+    });
+
+});
